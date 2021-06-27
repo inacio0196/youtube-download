@@ -41,6 +41,9 @@ export default merge(baseConfig, {
   },
 
   plugins: [
+    new webpack.DefinePlugin({
+      'process.env.FLUENTFFMPEG_COV': false
+    }),
     new BundleAnalyzerPlugin({
       analyzerMode:
         process.env.OPEN_ANALYZER === 'true' ? 'server' : 'disabled',

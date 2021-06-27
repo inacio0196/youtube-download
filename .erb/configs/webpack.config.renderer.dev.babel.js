@@ -211,7 +211,9 @@ export default merge(baseConfig, {
     ],
   },
   plugins: [
-
+    new webpack.DefinePlugin({
+        'process.env.FLUENTFFMPEG_COV': false
+    }),
     requiredByDLLConfig
       ? null
       : new webpack.DllReferencePlugin({

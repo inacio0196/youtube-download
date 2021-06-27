@@ -17,7 +17,9 @@ import log from 'electron-log';
 import MenuBuilder from './menu';
 import youtubedl from 'youtube-dl';
 import ffmpeg from 'fluent-ffmpeg';
+import ytdl from 'ytdl-core';
 import fs from 'fs';
+import os from 'os';
 
 export default class AppUpdater {
   constructor() {
@@ -136,17 +138,17 @@ app.on('activate', () => {
 
 // IPC Main
 ipcMain.on('download-video-ipcmain', (event, args) => {
-  const video = youtubedl(args.videoUrl, ['--format=18'], { cwd: __dirname });
-
   const options = {
     title: 'Save file',
-    defaultPath: __dirname,
+    defaultPath: os.homedir(),
     buttonLabel: 'Save',
+    nameFieldLabel: 'video.mp4',
     filters: [{ name: 'Movie', extensions: ['mp4', 'mkv', 'webm'] }],
   };
 
   dialog.showSaveDialog(mainWindow, options).then(({ filePath }) => {
-    video.pipe(fs.createWriteStream(`${filePath}.mp4`));
+    ytdl(args.videoUrl)
+      .pipe(fs.createWriteStream(`${filePath}.webm`));
   });
 
   event.sender.send('download-video-ipcrender', 'resposta video');
@@ -154,20 +156,20 @@ ipcMain.on('download-video-ipcmain', (event, args) => {
 
 ipcMain.on('download-mp3-ipcmain', (event, args) => {
   console.log('download-mp3-ipcmain', { mp3_main: args });
-
-  const video = youtubedl(args.videoUrl, ['--format=18'], { cwd: __dirname });
-
   const options = {
     title: 'Save file',
-    defaultPath: __dirname,
+    defaultPath: os.homedir(),
     buttonLabel: 'Save',
-    filters: [{ name: 'Movie', extensions: ['mp4', 'mkv', 'webm'] }],
+    nameFieldLabel: 'music.mp4',
+    filters: [{ name: 'Music', extensions: ['mp3', 'm4a'] }],
   };
 
-  dialog.showSaveDialog(mainWindow, options).then(async ({ filePath }) => {
-    await video.pipe(fs.createWriteStream(`${filePath}.mp4`));
-    await convertMp4ToMp3(`${filePath}.mp4`, `${filePath}.mp3`);
+  dialog.showSaveDialog(mainWindow, options).then(({ filePath }) => {
+    ytdl(args.videoUrl)
+      .pipe(fs.createWriteStream(`${filePath}.webm`));
+    convertMp4ToMp3(`${filePath}.webm`, `${filePath}.mp3`);
   });
+
   event.sender.send('download-mp3-ipcrender', 'resposta mp3');
 });
 
