@@ -13,7 +13,8 @@
 </div>
 
 <br />
-## Install
+
+# Install
 
 First, clone the repo via git and install dependencies:
 
